@@ -1,4 +1,3 @@
-
 # 🎓 Akademi – Scholarship Management System
 
 **Akademi** is a full-featured, web-based scholarship management platform designed to streamline the end-to-end process of scholarship applications, reviews, approvals, and future payment handling. Built with modern technologies and a user-centric approach, Akademi empowers educational institutions and organizations to manage scholarships efficiently and securely.
@@ -160,6 +159,26 @@ Backend runs on `http://localhost:3000` (or as configured).
 
 ---
 
+## Environment
+- server/.env
+  - JWT_SECRET=change_me
+  - CLIENT_URL=https://your-live-client.example.com
+- client/.env
+  - VITE_API_URL=https://your-live-server.example.com
+  - VITE_IMGBB_KEY=YOUR_IMGBB_KEY
+
+## Useful commands
+- Start server (dev): cd server && npx nodemon index.js
+- Start client: cd client && npm run dev
+
+## Features checklist
+- JWT auth (server /auth/jwt)
+- Scholarships: search, sort, pagination
+- Applications manage endpoint (moderator/admin)
+- Client: axiosSecure, TanStack Query, PrivateRoute, theme toggle, imgbb upload
+
+---
+
 ## 🧪 Future Enhancements
 
 - [ ] Email notifications (via Nodemailer or SendGrid)
@@ -203,5 +222,173 @@ For inquiries, feedback, or collaboration opportunities:
 > *Akademi – Simplifying Scholarships, One Application at a Time.*
 
 ---
+
+# Scholarship Management System
+
+A comprehensive platform for managing scholarships with multiple user roles and features.
+
+## 🎯 Features
+
+- Multi-role authentication (User, Moderator, Admin)
+- Scholarship search and application
+- Dashboard for each user role
+- Real-time notifications
+- Application tracking
+- Analytics and reporting
+
+## 📁 File Structure
+
+```
+scholarship-management-system/
+├── src/
+│   ├── components/
+│   │   ├── Dashboard/
+│   │   │   ├── Admin/
+│   │   │   ├── Moderator/
+│   │   │   └── User/
+│   │   ├── Shared/
+│   │   └── Authentication/
+│   ├── hooks/
+│   ├── utils/
+│   ├── providers/
+│   ├── routes/
+│   └── pages/
+├── server/
+│   ├── models/
+│   ├── routes/
+│   ├── middlewares/
+│   └── controllers/
+└── public/
+```
+
+## 🚀 Tech Stack
+
+- Frontend: React, TailwindCSS, TanStack Query
+- Backend: Node.js, Express
+- Database: MongoDB
+- Authentication: Firebase, JWT
+- State Management: Context API
+- UI Components: DaisyUI
+
+## ⚙️ Environment Variables
+
+```env
+REACT_APP_API_URL=
+REACT_APP_FIREBASE_API_KEY=
+REACT_APP_FIREBASE_AUTH_DOMAIN=
+REACT_APP_FIREBASE_PROJECT_ID=
+REACT_APP_FIREBASE_STORAGE_BUCKET=
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
+REACT_APP_FIREBASE_APP_ID=
+
+# Server Environment Variables
+MONGODB_URI=
+JWT_SECRET=
+CORS_ORIGIN=
+```
+
+## 🛠️ Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/scholarship-management-system.git
+```
+
+2. Install dependencies:
+```bash
+cd scholarship-management-system
+npm install
+cd server
+npm install
+```
+
+3. Set up environment variables:
+- Create `.env` file in root directory
+- Create `.env` file in server directory
+- Add necessary environment variables
+
+4. Run the application:
+```bash
+# Start frontend (root directory)
+npm run dev
+
+# Start backend (server directory)
+npm run dev
+```
+
+## 🔐 API Routes
+
+### Public Routes
+- `GET /api/scholarships` - Get all scholarships
+- `GET /api/scholarships/:id` - Get scholarship details
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+
+### Protected Routes
+- `POST /api/applications` - Submit application
+- `GET /api/applications/user` - Get user applications
+- `GET /api/moderator/scholarships` - Get scholarships (Moderator)
+- `POST /api/moderator/scholarships` - Add scholarship (Moderator)
+- `GET /api/admin/users` - Get all users (Admin)
+
+## 👥 User Roles
+
+1. **User**
+   - Search scholarships
+   - Apply for scholarships
+   - Track applications
+   - Update profile
+
+2. **Moderator**
+   - Manage scholarships
+   - Review applications
+   - Add new scholarships
+   - Generate reports
+
+3. **Admin**
+   - User management
+   - Role management
+   - System analytics
+   - Global settings
+
+## 🔒 Security Features
+
+- JWT Authentication
+- Protected Routes
+- Role-based Access Control
+- Input Validation
+- XSS Protection
+- CORS Configuration
+
+## 🎨 UI Components
+
+- Responsive Navigation
+- Dynamic Forms
+- Interactive Dashboards
+- Toast Notifications
+- Loading Skeletons
+- Modal Dialogs
+- Data Tables
+
+## 📈 Performance Optimizations
+
+- Code Splitting
+- Image Optimization
+- Lazy Loading
+- Caching Strategies
+- API Rate Limiting
+- Database Indexing
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
 
 
