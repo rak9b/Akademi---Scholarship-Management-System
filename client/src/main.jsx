@@ -34,18 +34,24 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Home />,
-        loader: () => fetch('https://akademi-university-project.vercel.app/')
+        element: <Home />,      
+        loader: () =>
+          fetch('https://akademi-university-project.vercel.app/')
+            .then(res => res.json())
       },
       {
         path: '/all-scholarships',
-        element: <AllScholarships />,
-        loader: () => fetch('https://akademi-university-project.vercel.app/all-data')
+        element: <AllScholarships />, 
+        loader: () =>
+          fetch('https://akademi-university-project.vercel.app/all-data')
+            .then(res => res.json())
       },
       {
         path: '/scholarship-details/:id',
-        element: <ScholarshipsDetails />,
-        loader: ({ params }) => fetch(`https://akademi-university-project.vercel.app/scholarship/${params.id}`)
+        element: <ScholarshipsDetails />, 
+        loader: ({ params }) =>
+          fetch(`https://akademi-university-project.vercel.app/scholarship/${params.id}`)
+            .then(res => res.json())
       },
       {
         path: '/contact',
@@ -99,17 +105,16 @@ const router = createBrowserRouter([
       {
         path: 'analytics',
         element: <AdminRoute><Charts /></AdminRoute>,
-        loader: () => fetch('https://akademi-university-project.vercel.app/all-collections-data')
-      },
-      // user route
-      {
-        path: 'my-application/:id',
-        element: <PrivateRoute><MyApplication /></PrivateRoute>
+        loader: () =>
+          fetch('https://akademi-university-project.vercel.app/all-collections-data')
+            .then(res => res.json())
       },
       {
         path: 'my-reviews/:id',
         element: <PrivateRoute><MyReviews /></PrivateRoute>,
-        loader: ({ params }) => fetch(`https://akademi-university-project.vercel.app/my-review/${params.id}`)
+        loader: ({ params }) =>
+          fetch(`https://akademi-university-project.vercel.app/my-review/${params.id}`)
+            .then(res => res.json())
       }
 
     ]

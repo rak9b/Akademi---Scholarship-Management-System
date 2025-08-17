@@ -16,14 +16,29 @@ import PaymentForm from '../PaymentGateway/PaymentForm';
 import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-toastify';
 import useRole from '../../Hooks/useRole';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import useAuth from '../../hooks/useAuth'; // assuming hook for auth
 
 const stripePromise = loadStripe(import.meta.env.VITE_publishableKey);
 
 const ScholarshipsDetails = () => {
-    const data = useLoaderData()[0]
+    const { id } = useParams();
+    const { user } = useAuth(); // assuming auth hook
+    if (!user) return <div>Please login to view details.</div>; // simple private route
+    const { data, isLoading } = useQuery({
+        queryKey: ['scholarship', id],
+        queryFn: async () => {
+            const res = await fetch(`https://akademi-university-project.vercel.app/scholarship/${id}`);
+            return res.json();
+        }
+    });
+    if (isLoading) return <div>Loading...</div>;
+    const { _id, scholarshipName, applicationFees, degree, scholarshipPostDate, universityImage, serviceCharge, universityName, universityCity, universityCountry, scholarshipCategory, subjectCategory, applicationDeadline, universityWorldRank, tuitionFees, postedUserEmail, description } = data[0];
+    // Assume multiple images for slider
+    const images = [universityImage, universityImage]; // placeholder, update with actual array if available
     const [paymentSuccess, setPaymentSuccess] = useState(false)
     const { user, userId } = useRole()
-    const { _id, scholarshipName, applicationFees, degree, scholarshipPostDate, universityImage, serviceCharge, universityName, universityCity, universityCountry, scholarshipCategory, subjectCategory, applicationDeadline, universityWorldRank, tuitionFees, postedUserEmail, } = data
     const [toggle, setToggle] = useState(true)
 
     const handleSubmit = e => {
@@ -239,6 +254,39 @@ const ScholarshipsDetails = () => {
             </div>
         </section>
     );
+};
+
+export default ScholarshipsDetails;
+// Add image slider
+<div className="image-slider">
+    {images.map((img, idx) => <img key={idx} src={img} alt={`University ${idx}`} />)}
+</div>
+// Add description
+<p>{description}</p>
+// For reviews carousel, assume reviews fetched
+const { data: reviews } = useQuery({ queryKey: ['reviews', _id], queryFn: async () => {/* fetch */} });
+// Simple carousel
+<div className="reviews-carousel">
+    {reviews?.map(review => (
+        <div key={review._id}>
+            <img src={review.reviewerImage} alt="Reviewer" />
+            <p>{review.reviewerName}</p>
+            <p>{review.date}</p>
+            <p>{review.rating}</p>
+            <p>{review.comments}</p>
+        </div>
+    ))}
+</div>
+// Adjust form
+// Add read-only fields: User Name, Email, Scholarship ID
+<input value={user?.displayName} readOnly name="userName" />
+<input value={user?.email} readOnly name="userEmail" />
+<input value={_id} readOnly name="scholarshipId" />
+// Add Study Gap
+<select name="studyGap">
+    <option value="none">None</option>
+    <option value="1 year">1 year</option>
+    // ...
 };
 
 export default ScholarshipsDetails;

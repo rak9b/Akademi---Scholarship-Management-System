@@ -1,9 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import AuthProvider, { AuthContext } from '../Context/AuthProvider';
+import { AuthContext } from '../Context/AuthProvider';
 import { toast } from 'react-toastify';
 
 const Navbar = () => {
+    const { user, signOutUser } = useContext(AuthContext);
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
     const { user, signOutUser } = useContext(AuthContext)
     const logOut = () => {
         signOutUser()
@@ -48,6 +59,9 @@ const Navbar = () => {
                     </ul>
                 </div>
                 <div className="navbar-end relative">
+                    <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
+                        {theme === 'light' ? 'Dark' : 'Light'}
+                    </button>
                     {
                         user ?
                             <div className="flex-none">

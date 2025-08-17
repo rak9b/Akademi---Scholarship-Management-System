@@ -1,33 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ScholarshipsCard from '../HomePage/ScholarshipCard';
 import OtherPageBanner from '../../Hooks/OtherPageBanner';
 import bgImage from '../../assets/pricing-breadcrumb-1.jpg';
-import { useLoaderData } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaArrowLeftLong, FaArrowRight } from 'react-icons/fa6';
-const AllScholarships = () => {
-    const loaderData = useLoaderData()
-    const [data, setData] = useState(loaderData)
-    const [searchCategory, setSearchKey] = useState('')
-    const [isAvailable, setIsAvailable] = useState(true)
-    const handleSearch = (e) => {
-        const searchQuery = e.target.value.toLowerCase(); // 
-        if (!searchQuery) {
-            setData(loaderData)
-            return
-        }
-        if (!searchCategory) {
-            toast.error("Select a search category before typing!");
-            return;
-        }
-        const newData = loaderData.filter(d =>
-            d[searchCategory]?.toLowerCase().includes(searchQuery)
-        );
-        setIsAvailable(newData.length > 0)
-        setData(newData);
-    };
+import { useQuery } from '@tanstack/react-query';
 
-    const itemsPerPage = 9;
+const AllScholarships = () => {
+    const { data: loaderData = [], isLoading } = useQuery({
+        queryKey: ['allScholarships'],
+        queryFn: async () => {
+            const res = await fetch('https://akademi-university-project.vercel.app/all-data');
+            if (!res.ok) throw new Error('Failed to fetch');
+            return res.json();
+        }
+    });
+
+    const [data, setData] = useState([]);
+    const [searchCategory, setSearchKey] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sort, setSort] = useState('none');
+    const [isAvailable, setIsAvailable] = useState(true);
+
+    useEffect(() => {
+        let filtered = [...loaderData];
+        if (searchQuery && searchCategory) {
+            filtered = filtered.filter(d => d[searchCategory]?.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        if (sort === 'asc') {
+            filtered.sort((a, b) => a.applicationFees - b.applicationFees);
+        } else if (sort === 'desc') {
+            filtered.sort((a, b) => b.applicationFees - a.applicationFees);
+        }
+        setData(filtered);
+        setIsAvailable(filtered.length > 0);
+        setCurrentPage(1);
+    }, [loaderData, searchQuery, searchCategory, sort]);
+
+    if (isLoading) return <div>Loading...</div>;
+
+    const itemsPerPage = 6;
     const [currentPage, setCurrentPage] = useState(1);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -42,28 +54,27 @@ const AllScholarships = () => {
             <OtherPageBanner image={bgImage} heading={'Explore Scholarship Opportunities'} />
             <section className='py-20 bg-[#f2f8f1]'>
                 <div className='flex gap-3 items-center justify-end max-w-screen-xl mx-auto mb-5'>
-                    <input onChange={handleSearch} className='input input-bordered' type="text" placeholder='Search here' name="searchBox" id="" />
+                    <input onChange={(e) => setSearchQuery(e.target.value)} className='input input-bordered' type="text" placeholder='Search here' />
                     <select onChange={(e) => setSearchKey(e.target.value)} defaultValue={'Search by category'} className="select select-bordered">
                         <option disabled value={'Search by category'}>Search By category</option>
                         <option value={'scholarshipName'}>Scholarship Name</option>
                         <option value={'universityName'}>University Name</option>
                         <option value={'degree'}>Degree Name</option>
                     </select>
+                    <select onChange={(e) => setSort(e.target.value)} defaultValue={'none'} className="select select-bordered">
+                        <option disabled value={'none'}>Sort by Fees</option>
+                        <option value={'asc'}>Ascending</option>
+                        <option value={'desc'}>Descending</option>
+                    </select>
                 </div>
                 <div className='grid lg:grid-cols-3 md:grid-cols-2 max-w-screen-2xl mx-auto gap-7 px-10'>
-                    {
-                        currentScholarships.map(d => <ScholarshipsCard scholarship={d} key={d._id} />)
-                    }
+                    {currentScholarships.map(d => <ScholarshipsCard scholarship={d} key={d._id} />)}
                 </div>
-
-                {isAvailable || <div className='text-3xl py-10 font-bold text-center'>No Scholarships Available</div>}
-
+                {!isAvailable && <div className='text-3xl py-10 font-bold text-center'>No results found</div>}
                 <div className='max-w-sm mx-auto mt-14 flex justify-center space-x-5'>
                     <button className='btn transition duration-300 hover:bg-[#7CFF77] hover:text-[#14452F] bg-[#185137] text-white px-7' onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                         <FaArrowLeftLong /> Prev
                     </button>
-
-                    {/* Page numbers */}
                     {[...Array(Math.ceil(data.length / itemsPerPage))].map((_, index) => (
                         <button
                             key={index}
@@ -73,7 +84,6 @@ const AllScholarships = () => {
                             {index + 1}
                         </button>
                     ))}
-
                     <button className='btn transition duration-300 hover:bg-[#7CFF77] hover:text-[#14452F] bg-[#185137] text-white px-7' onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === Math.ceil(data.length / itemsPerPage)}>
                         Next <FaArrowRight />
                     </button>
