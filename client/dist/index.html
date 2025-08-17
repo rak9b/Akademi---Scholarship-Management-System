@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Akademi</title>
+    <script type="module" crossorigin src="/assets/index-B9V1WsbL.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DOD1PdNi.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+const cors = require('cors');
+const mongoose = require('mongoose');
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['your-domain.com'] 
+    : ['http://localhost:3000'],
+  credentials: true
+}));
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
