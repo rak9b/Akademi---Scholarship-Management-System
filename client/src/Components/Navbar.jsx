@@ -1,11 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Context/AuthProvider';
 import { toast } from 'react-toastify';
 
 const Navbar = () => {
     const { user, signOutUser } = useContext(AuthContext);
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+    const token = localStorage.getItem('token');
+    let role = null;
+    if (token) { try { role = JSON.parse(atob(token.split('.')[1])).role; } catch {} }
+    const navigate = useNavigate();
+    const logout = () => { localStorage.removeItem('token'); navigate('/'); };
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -15,7 +20,6 @@ const Navbar = () => {
     const toggleTheme = () => {
         setTheme(theme === 'light' ? 'dark' : 'light');
     };
-    const { user, signOutUser } = useContext(AuthContext)
     const logOut = () => {
         signOutUser()
             .then(res => toast.success('Sign Out Successful'))

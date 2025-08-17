@@ -1,14 +1,20 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../Context/AuthProvider";
 import { toast } from "react-toastify";
 import googleImg from '../../assets/googleLogo.png'
 import { Link, useNavigate } from "react-router-dom";
-import useCreateUser from "../../Hooks/useCreateUser";
+import useAuth from "../../Hooks/useAuth";
 import auth from "../../../firebase.config";
 const Login = () => {
-    const { login, setUser, signInWithGoogle } = useContext(AuthContext)
+    const { login, setUser, signInWithGoogle, user } = useContext(AuthContext)
     const navigate = useNavigate()
-    const { createUser, data, error } = useCreateUser()
+    const { getToken, data, error } = useAuth()
+
+    useEffect(() => {
+        if (user) {
+            getToken(user);
+        }
+    }, [user, getToken]);
 
     // email password log in
     const handleSubmit = (e) => {
@@ -18,7 +24,6 @@ const Login = () => {
         login(email, password)
             .then(res => {
                 setUser(res.user)
-                createUser(auth.currentUser)
                 toast.success('Log in success')
                 navigate('/');
             })
@@ -31,7 +36,6 @@ const Login = () => {
             .then((userCredential) => {
                 toast.success('User registered successfully');
                 setUser(userCredential.user);
-                createUser(auth.currentUser)
                 navigate('/');
             })
             .catch(err => toast.error('Registration failed. Please try again'))
@@ -40,7 +44,6 @@ const Login = () => {
         login(import.meta.env.VITE_ADMIN_EMAIL, import.meta.env.VITE_ADMIN_PASSWORD)
             .then(res => {
                 setUser(res.user)
-                createUser(auth.currentUser)
                 toast.success('Logged in as admin')
                 navigate('/');
             })
@@ -50,7 +53,6 @@ const Login = () => {
         login(import.meta.env.VITE_MODERATOR_EMAIL, import.meta.env.VITE_MODERATOR_PASSWORD)
             .then(res => {
                 setUser(res.user)
-                createUser(auth.currentUser)
                 toast.success('Logged in as moderator')
                 navigate('/');
             })

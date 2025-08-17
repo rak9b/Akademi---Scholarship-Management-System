@@ -1,16 +1,42 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const port = process.env.PORT || 5000;
+const jwt = require('jsonwebtoken');
+const port = process.env.PORT || 5001;
 const app = express();
-const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SC_KEY);
+// Temporarily disable Stripe for development
+// const Stripe = require('stripe');
+// const stripe = Stripe(process.env.STRIPE_SC_KEY);
 const scholarshipController = require('./controllers/scholarshipController');
+const authRoutes = require('./routes/auth');
+
+// JWT middleware
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).send({ message: 'Unauthorized access' });
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).send({ message: 'Forbidden access' });
+    req.decoded = decoded;
+    next();
+  });
+};
+
+// Authorization middleware
+const verifyAuthorization = async (req, res, next) => {
+  const user = await userCollection.findOne({ userEmail: req.query.email });
+  const isAuthorized = user?.role === 'admin' || user?.role === 'moderator';
+  if (!isAuthorized) {
+    return res.status(403).send({ message: 'forbidden access' });
+  }
+  next();
+};
 
 // Middleware
-app.use(cors());
+const allowed = [process.env.CLIENT_URL, 'http://localhost:5173'].filter(Boolean);
+app.use(cors({ origin: allowed, credentials: true }));
 app.use(express.json());
-
+app.use('/auth', authRoutes);
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wwjbp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -57,15 +83,15 @@ async function run() {
         //////// user related //////// 
 
         app.post('/create-user', async (req, res) => {
-            const data = req.body
-            const query = { userEmail: data.email }
+            const data = req.body;
+            const query = { email: data.email };
             const existingUser = await userCollection.findOne(query);
             if (existingUser) {
-                return res.send({ message: 'user already exists', insertedId: null })
+                return res.send({ message: 'user already exists', insertedId: null });
             }
-            const result = await userCollection.insertOne({ userName: data.displayName, userEmail: data.email, role: 'user' })
-            res.send(result)
-        })
+            const result = await userCollection.insertOne({ name: data.displayName, email: data.email, role: 'user', uid: data.uid });
+            res.send(result);
+        });
 
         app.get('/users/:email', async (req, res) => {
             const result = await userCollection.findOne({ userEmail: req.params.email })
@@ -270,18 +296,6 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-
-// JWT middleware (example, adjust as needed)
-const verifyJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).send({ message: 'Unauthorized access' });
-  const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).send({ message: 'Forbidden access' });
-    req.decoded = decoded;
-    next();
-  });
-};
 
 // Scholarship routes
 app.post('/api/scholarships', verifyJWT, verifyAuthorization, scholarshipController.createScholarship);
