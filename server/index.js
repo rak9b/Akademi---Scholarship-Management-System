@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5004;
 const app = express();
 // Temporarily disable Stripe for development
 // const Stripe = require('stripe');
